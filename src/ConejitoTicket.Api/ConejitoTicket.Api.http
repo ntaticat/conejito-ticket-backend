@@ -1,0 +1,61 @@
+@host = http://localhost:5251
+
+### Login admin
+# @name login
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "userName": "admin", "password": "Admin123!" }
+
+### Token M2M (client credentials)
+# @name client
+POST {{host}}/api/v1/auth/connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id=test-client&client_secret=test-secret
+
+### Crear ticket (M2M)
+POST {{host}}/api/v1/tickets
+Authorization: Bearer {{client.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "title": "No carga el dashboard",
+  "description": "Pantalla en blanco al entrar",
+  "type": "Bug",
+  "priority": "High",
+  "tenantId": "t-001",
+  "tenantName": "Empresa Demo",
+  "reporterUserEmail": "user@demo.com",
+  "metadata": { "browser": "Firefox", "version": "1.2.3" }
+}
+
+### Listar tickets (admin)
+GET {{host}}/api/v1/tickets?status=New&priority=High&page=1&pageSize=20
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Suscripción WebPush (admin)
+POST {{host}}/api/v1/push/subscriptions
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/abc123",
+  "keys": { "p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM", "auth": "tBHItJI5svbpez7KI4CCXg" }
+}
+
+### Detalle de ticket (admin)
+@ticketId = 00000000-0000-0000-0000-000000000000
+GET {{host}}/api/v1/tickets/{{ticketId}}
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Cambiar estado (admin)
+PATCH {{host}}/api/v1/tickets/{{ticketId}}/status
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "status": "InProgress" }
+
+### Sistemas origen (admin)
+GET {{host}}/api/v1/system-apps
+Authorization: Bearer {{login.response.body.accessToken}}

@@ -1,0 +1,2 @@
+dotnet user-secrets init --project src/ConejitoTicket.Api
+dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5432;Database=dbConejitoTicket;Username=postgres;Password=<tu password>" --project src/ConejitoTicket.Api
