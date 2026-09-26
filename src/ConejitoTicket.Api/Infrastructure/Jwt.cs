@@ -17,7 +17,8 @@ public sealed class JwtOptions
     public required string Issuer { get; init; }
     public required string Audience { get; init; }
     public required string Key { get; init; }
-    public int ExpiresMinutes { get; init; } = 60;
+    public int ExpiresMinutes { get; init; } = 15;
+    public int RefreshDays { get; init; } = 14;
 
     public SymmetricSecurityKey SigningKey => new(Encoding.UTF8.GetBytes(Key));
 }

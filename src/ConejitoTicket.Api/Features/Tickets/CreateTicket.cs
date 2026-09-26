@@ -23,7 +23,7 @@ public static class CreateTicket
 
     public record TicketCreatedDto(Guid Id, long TicketNumber, TicketStatus Status, DateTime CreatedAtUtc);
 
-    public sealed class Handler(AppDbContext context)
+    public sealed class Handler(AppDbContext context, PushNotifier notifier)
     {
         public async Task<TicketCreatedDto> HandleAsync(
             CreateTicketRequest request, Guid systemAppId, CancellationToken cancellationToken)
@@ -52,6 +52,7 @@ public static class CreateTicket
 
             await context.Tickets.AddAsync(ticket, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
+            notifier.Enqueue(new TicketCreated(ticket.Id, ticket.TicketNumber, ticket.Title, ticket.Priority));
 
             return new TicketCreatedDto(ticket.Id, ticket.TicketNumber, ticket.Status, ticket.CreatedAtUtc);
         }

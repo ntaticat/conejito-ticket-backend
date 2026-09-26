@@ -22,6 +22,7 @@ if (Encoding.UTF8.GetByteCount(jwt.Key) < 32)
     throw new InvalidOperationException("Jwt:Key debe tener al menos 32 bytes.");
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<TokenIssuer>();
+builder.Services.AddScoped<RefreshTokens>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
@@ -39,6 +40,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(Roles.Admin, p => p.RequireRole(Roles.Admin))
     .AddPolicy(Roles.System, p => p.RequireRole(Roles.System));
+
+builder.Services.Configure<VapidOptions>(builder.Configuration.GetSection("Vapid"));
+builder.Services.AddSingleton<PushNotifier>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<PushNotifier>());
 
 builder.Services.AddFeatures();
 

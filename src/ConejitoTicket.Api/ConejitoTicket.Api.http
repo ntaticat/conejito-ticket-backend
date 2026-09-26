@@ -7,6 +7,12 @@ Content-Type: application/json
 
 { "userName": "admin", "password": "Admin123!" }
 
+### Renovar access token (usa la cookie HttpOnly 'rt' del login)
+POST {{host}}/api/v1/auth/refresh
+
+### Cerrar sesión (revoca la familia del refresh token)
+POST {{host}}/api/v1/auth/logout
+
 ### Token M2M (client credentials)
 # @name client
 POST {{host}}/api/v1/auth/connect/token
@@ -43,6 +49,13 @@ Content-Type: application/json
   "endpoint": "https://fcm.googleapis.com/fcm/send/abc123",
   "keys": { "p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM", "auth": "tBHItJI5svbpez7KI4CCXg" }
 }
+
+### Baja de suscripción WebPush (admin)
+DELETE {{host}}/api/v1/push/subscriptions
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "endpoint": "https://fcm.googleapis.com/fcm/send/abc123" }
 
 ### Detalle de ticket (admin)
 @ticketId = 00000000-0000-0000-0000-000000000000

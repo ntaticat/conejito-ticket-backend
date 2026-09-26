@@ -10,6 +10,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -41,6 +42,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => new { x.Status, x.Priority });
             e.HasIndex(x => x.TenantId);
+        });
+
+        b.Entity<RefreshToken>(e =>
+        {
+            e.Property(x => x.TokenHash).HasMaxLength(64);
+            e.HasIndex(x => x.TokenHash).IsUnique();
+            e.HasIndex(x => x.FamilyId);
+            e.HasOne<AdminUser>().WithMany().HasForeignKey(x => x.AdminUserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<PushSubscription>(e =>
