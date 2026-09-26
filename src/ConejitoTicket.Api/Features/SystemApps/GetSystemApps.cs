@@ -5,14 +5,14 @@ namespace ConejitoTicket.Api.Features.SystemApps;
 
 public static class GetSystemApps
 {
-    public record SystemAppDto(Guid Id, string Name);
+    public record SystemAppDto(Guid Id, string Name, string ClientId, bool IsActive, DateTime CreatedAtUtc);
 
     public sealed class Handler(AppDbContext context)
     {
         public Task<List<SystemAppDto>> HandleAsync(CancellationToken cancellationToken) =>
             context.SystemApps.AsNoTracking()
                 .OrderBy(s => s.Name)
-                .Select(s => new SystemAppDto(s.Id, s.Name))
+                .Select(s => new SystemAppDto(s.Id, s.Name, s.ClientId, s.IsActive, s.CreatedAtUtc))
                 .ToListAsync(cancellationToken);
     }
 

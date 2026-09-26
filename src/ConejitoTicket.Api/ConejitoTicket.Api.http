@@ -72,3 +72,22 @@ Content-Type: application/json
 ### Sistemas origen (admin)
 GET {{host}}/api/v1/system-apps
 Authorization: Bearer {{login.response.body.accessToken}}
+
+### Registrar sistema (admin): el secret solo aparece en esta respuesta
+# @name newApp
+POST {{host}}/api/v1/system-apps
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "name": "Mi sistema" }
+
+### Regenerar secret (admin): el anterior deja de servir
+POST {{host}}/api/v1/system-apps/{{newApp.response.body.id}}/secret
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Desactivar / reactivar sistema (admin)
+PATCH {{host}}/api/v1/system-apps/{{newApp.response.body.id}}
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "isActive": false }

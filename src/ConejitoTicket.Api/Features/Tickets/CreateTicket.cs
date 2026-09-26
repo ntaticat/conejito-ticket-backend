@@ -4,6 +4,7 @@ using System.Text.Json;
 using ConejitoTicket.Api.Domain;
 using ConejitoTicket.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConejitoTicket.Api.Features.Tickets;
 
@@ -25,9 +26,13 @@ public static class CreateTicket
 
     public sealed class Handler(AppDbContext context, PushNotifier notifier)
     {
-        public async Task<TicketCreatedDto> HandleAsync(
+        // null si la app se desactivó después de emitir su token (el token sigue vigente hasta expirar).
+        public async Task<TicketCreatedDto?> HandleAsync(
             CreateTicketRequest request, Guid systemAppId, CancellationToken cancellationToken)
         {
+            if (!await context.SystemApps.AnyAsync(s => s.Id == systemAppId && s.IsActive, cancellationToken))
+                return null;
+
             var metadata = request.Metadata switch
             {
                 null or { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined } => null,
@@ -69,7 +74,9 @@ public static class CreateTicket
                     CancellationToken cancellationToken) =>
                 {
                     var result = await handler.HandleAsync(request, user.GetSubjectId(), cancellationToken);
-                    return Results.Created($"/api/v1/tickets/{result.Id}", result);
+                    return result is null
+                        ? Results.Problem(statusCode: StatusCodes.Status403Forbidden, title: "La aplicación cliente está desactivada.")
+                        : Results.Created($"/api/v1/tickets/{result.Id}", result);
                 })
                 .RequireAuthorization(Roles.System)
                 .WithTags("Tickets");
